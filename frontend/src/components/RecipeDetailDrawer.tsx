@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { ExternalLink, Save, X } from "lucide-react";
+import { ExternalLink, Save, Trash2, X } from "lucide-react";
 import { mediaUrl } from "../lib/api";
 import type { Ingredient, RecipeDetail, RecipeStep } from "../types";
 
@@ -7,9 +7,10 @@ type Props = {
   recipe: RecipeDetail | null;
   onClose: () => void;
   onSave: (recipe: RecipeDetail) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 };
 
-export function RecipeDetailDrawer({ recipe, onClose, onSave }: Props) {
+export function RecipeDetailDrawer({ recipe, onClose, onSave, onDelete }: Props) {
   const [draft, setDraft] = useState<RecipeDetail | null>(recipe);
   const ingredientText = useMemo(() => (draft?.ingredients || []).map((item) => [item.name, item.amount, item.note || ""].join(" | ")).join("\n"), [draft?.ingredients]);
   const stepText = useMemo(() => (draft?.steps || []).map((item) => [item.title, item.body].filter(Boolean).join("\n")).join("\n---\n"), [draft?.steps]);
@@ -145,7 +146,14 @@ export function RecipeDetailDrawer({ recipe, onClose, onSave }: Props) {
           </section>
         </form>
 
-        <footer className="border-t border-black/10 p-3">
+        <footer className="grid gap-2 border-t border-black/10 p-3 sm:grid-cols-[auto_1fr]">
+          <button
+            onClick={() => onDelete(recipe.id)}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-tomato/30 px-4 text-sm font-bold text-tomato transition hover:bg-tomato hover:text-white"
+          >
+            <Trash2 className="h-4 w-4" />
+            删除菜谱
+          </button>
           <button onClick={saveDraft} className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-herb px-4 text-sm font-bold text-white transition hover:bg-herb/90">
             <Save className="h-4 w-4" />
             保存修改

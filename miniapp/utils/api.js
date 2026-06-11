@@ -74,8 +74,12 @@ function normalizeWeeklyPlan(plan) {
 }
 
 module.exports = {
-  async listRecipes() {
-    const recipes = await request("/api/recipes");
+  async listRecipes(query, platform) {
+    const params = [];
+    if (query) params.push(`query=${encodeURIComponent(query)}`);
+    if (platform) params.push(`platform=${encodeURIComponent(platform)}`);
+    const suffix = params.length ? `?${params.join("&")}` : "";
+    const recipes = await request(`/api/recipes${suffix}`);
     return recipes.map(normalizeRecipe);
   },
   async randomRecipes(count) {
@@ -94,6 +98,9 @@ module.exports = {
   async getRecipe(id) {
     const recipe = await request(`/api/recipes/${id}`);
     return normalizeRecipe(recipe);
+  },
+  deleteRecipe(id) {
+    return request(`/api/recipes/${id}`, { method: "DELETE" });
   },
   async listMenu() {
     const items = await request("/api/today-menu/items");

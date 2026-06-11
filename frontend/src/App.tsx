@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChefHat, RefreshCw } from "lucide-react";
+import { ChefHat, RefreshCw, Search } from "lucide-react";
 import { ImportPanel, type ImportPanelHandle } from "./components/ImportPanel";
 import { JobList, recoverPlatform } from "./components/JobList";
 import { PreferencesPanel } from "./components/PreferencesPanel";
@@ -36,7 +36,11 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [weeklyPlanLoading, setWeeklyPlanLoading] = useState(false);
   const [notice, setNotice] = useState<string>("");
+  const [recipeQuery, setRecipeQuery] = useState("");
+  const [recipePlatform, setRecipePlatform] = useState("");
   const [orderQuery, setOrderQuery] = useState("");
+  const [checkoutTitle, setCheckoutTitle] = useState("今日菜单");
+  const [checkoutNote, setCheckoutNote] = useState("");
   const importPanelRef = useRef<ImportPanelHandle>(null);
 
   const activeJobs = useMemo(() => jobs.filter((job) => job.status === "queued" || job.status === "processing"), [jobs]);
@@ -45,7 +49,7 @@ export default function App() {
     const [nextStatus, nextPreferences, nextRecipes, nextJobs, nextMenu, nextShoppingList, nextOrders, nextCookingStats, nextWeeklyPlans] = await Promise.all([
       loadSection("系统状态", api.systemStatus(), systemStatus),
       loadSection("口味偏好", api.getPreferences(), preferences),
-      loadSection("菜谱库", api.listRecipes(), recipes),
+      loadSection("菜谱库", api.listRecipes(recipeQuery, recipePlatform), recipes),
       loadSection("导入状态", api.listJobs(), jobs),
       loadSection("今日菜单", api.listMenu(), menuItems),
       loadSection("买菜清单", api.shoppingList(), shoppingList),
@@ -125,6 +129,15 @@ export default function App() {
     setNotice("菜谱已保存。");
   }
 
+  async function deleteRecipe(recipeId: string) {
+    const confirmed = window.confirm("删除后会从菜谱库、今日菜单和未确认周计划中移除；历史菜单记录会保留。确定删除这道菜吗？");
+    if (!confirmed) return;
+    await api.deleteRecipe(recipeId);
+    setSelectedRecipe(null);
+    await refreshAll();
+    setNotice("菜谱已删除，历史菜单记录已保留。");
+  }
+
   async function addMenuItem(recipeId: string) {
     await api.addMenuItem(recipeId, preferences?.default_servings || 1);
     await refreshAll();
@@ -160,9 +173,12 @@ export default function App() {
   }
 
   async function checkoutMenu() {
-    const order = await api.createMenuOrder({ title: "今日菜单" });
+    const title = checkoutTitle.trim() || "今日菜单";
+    const order = await api.createMenuOrder({ title, note: checkoutNote.trim() });
+    setCheckoutTitle("今日菜单");
+    setCheckoutNote("");
     await refreshAll();
-    setNotice(`已确认菜单：${order.item_count} 道菜。`);
+    setNotice(`已确认菜单「${order.title}」：${order.item_count} 道菜。`);
   }
 
   async function restoreMenuOrder(orderId: string) {
@@ -171,10 +187,34 @@ export default function App() {
     setNotice(`已复用菜单：${restoredItems.length} 道菜已加入今日菜单。`);
   }
 
+  async function copyShoppingList() {
+    if (!shoppingList.length) {
+      setNotice("买菜清单为空。");
+      return;
+    }
+    const text = formatShoppingList(shoppingList);
+    if (!window.navigator.clipboard?.writeText) {
+      setNotice("当前浏览器不支持一键复制。");
+      return;
+    }
+    await window.navigator.clipboard.writeText(text);
+    setNotice("买菜清单已复制。");
+  }
+
   async function updateOrderQuery(query: string) {
     setOrderQuery(query);
     const orders = await api.listMenuOrders(query);
     setMenuOrders(orders);
+  }
+
+  async function updateRecipeQuery(query: string) {
+    setRecipeQuery(query);
+    setRecipes(await api.listRecipes(query, recipePlatform));
+  }
+
+  async function updateRecipePlatform(platform: string) {
+    setRecipePlatform(platform);
+    setRecipes(await api.listRecipes(recipeQuery, platform));
   }
 
   async function generateWeeklyPlan() {
@@ -214,6 +254,12 @@ export default function App() {
     }
   }
 
+  async function retryFailedJob(job: ImportJob) {
+    await api.retryJob(job.id);
+    await refreshAll();
+    setNotice("已重新创建导入任务，后台会再次解析这个链接。");
+  }
+
   return (
     <main className="min-h-screen bg-mist text-ink">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 lg:px-6">
@@ -247,12 +293,37 @@ export default function App() {
                 <h2 className="text-lg font-black text-ink">菜谱库</h2>
                 <p className="text-sm text-ink/55">{recipes.length} 道菜，点击查看做法</p>
               </div>
-              <button
-                onClick={() => pickRandomRecipe().catch((error) => setNotice(error.message))}
-                className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm font-bold text-ink transition hover:border-ginger hover:text-ginger"
-              >
-                随机一道
-              </button>
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                <label className="flex h-10 min-w-0 items-center gap-2 rounded-lg border border-black/10 bg-white px-3 text-sm text-ink shadow-sm sm:w-64">
+                  <Search className="h-4 w-4 shrink-0 text-ink/45" />
+                  <span className="sr-only">搜索菜谱</span>
+                  <input
+                    value={recipeQuery}
+                    onChange={(event) => updateRecipeQuery(event.target.value).catch((error) => setNotice(error.message))}
+                    placeholder="搜菜名、标签、作者"
+                    className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink/35"
+                  />
+                </label>
+                <label className="sr-only" htmlFor="recipe-platform-filter">
+                  平台筛选
+                </label>
+                <select
+                  id="recipe-platform-filter"
+                  value={recipePlatform}
+                  onChange={(event) => updateRecipePlatform(event.target.value).catch((error) => setNotice(error.message))}
+                  className="h-10 rounded-lg border border-black/10 bg-white px-3 text-sm font-semibold text-ink shadow-sm outline-none transition hover:border-herb focus:border-herb"
+                >
+                  <option value="">全部平台</option>
+                  <option value="xiaohongshu">小红书</option>
+                  <option value="douyin">抖音</option>
+                </select>
+                <button
+                  onClick={() => pickRandomRecipe().catch((error) => setNotice(error.message))}
+                  className="h-10 rounded-lg border border-black/10 bg-white px-3 text-sm font-bold text-ink shadow-sm transition hover:border-ginger hover:text-ginger"
+                >
+                  随机一道
+                </button>
+              </div>
             </div>
             <RecipeGrid recipes={recipes} onOpen={openRecipe} onAdd={addMenuItem} />
           </div>
@@ -263,12 +334,17 @@ export default function App() {
               cookingStats={cookingStats}
               shoppingList={shoppingList}
               orderQuery={orderQuery}
+              checkoutTitle={checkoutTitle}
+              checkoutNote={checkoutNote}
               onOrderQueryChange={(query) => updateOrderQuery(query).catch((error) => setNotice(error.message))}
+              onCheckoutTitleChange={setCheckoutTitle}
+              onCheckoutNoteChange={setCheckoutNote}
               onUpdate={updateMenuItem}
               onRemove={removeMenuItem}
               onClear={clearMenu}
               onCheckout={checkoutMenu}
               onRestoreOrder={restoreMenuOrder}
+              onCopyShoppingList={() => copyShoppingList().catch((error) => setNotice(error.message))}
             />
             <WeeklyPlanPanel
               plan={weeklyPlan}
@@ -277,11 +353,11 @@ export default function App() {
               onAddItem={(itemId) => addWeeklyPlanItemToToday(itemId).catch((error) => setNotice(error.message))}
             />
             <PreferencesPanel preferences={preferences} onSave={savePreferences} />
-            <JobList jobs={jobs} onRecover={recoverFailedJob} />
+            <JobList jobs={jobs} onRecover={recoverFailedJob} onRetry={(job) => retryFailedJob(job).catch((error) => setNotice(error.message))} />
           </div>
         </div>
       </div>
-      <RecipeDetailDrawer recipe={selectedRecipe} onClose={() => setSelectedRecipe(null)} onSave={saveRecipe} />
+      <RecipeDetailDrawer recipe={selectedRecipe} onClose={() => setSelectedRecipe(null)} onSave={saveRecipe} onDelete={deleteRecipe} />
     </main>
   );
 }
@@ -293,4 +369,15 @@ async function loadSection<T>(label: string, request: Promise<T>, fallback: T): 
     const message = error instanceof Error ? error.message : "加载失败";
     return { data: fallback, error: `${label}加载失败：${message}` };
   }
+}
+
+function formatShoppingList(items: ShoppingListItem[]): string {
+  return [
+    "Foodnote 买菜清单",
+    ...items.map((item) => {
+      const amount = item.amount || `x${item.servings_total}`;
+      const note = item.note ? `（${item.note}）` : "";
+      return `- ${item.name}：${amount}${note}`;
+    })
+  ].join("\n");
 }

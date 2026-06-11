@@ -27,10 +27,18 @@
     </view>
   </view>
 
-  <button wx:if="{{items.length}}" class="confirm" bindtap="confirmMenu">确认菜单</button>
+  <view wx:if="{{items.length}}" class="checkout-card card">
+    <text class="checkout-title">确认菜单</text>
+    <input class="checkout-input" value="{{checkoutTitle}}" placeholder="菜单名称，例如：周五晚餐" bindinput="updateCheckoutTitle" />
+    <input class="checkout-input" value="{{checkoutNote}}" placeholder="备注，例如：少辣，多做一份明天带饭" bindinput="updateCheckoutNote" />
+    <button class="confirm" bindtap="confirmMenu">确认菜单</button>
+  </view>
 
   <view wx:if="{{shoppingList.length}}" class="shopping card">
-    <text class="shopping-title">买菜清单</text>
+    <view class="shopping-head">
+      <text class="shopping-title">买菜清单</text>
+      <button bindtap="copyShoppingList">复制</button>
+    </view>
     <view wx:for="{{shoppingList}}" wx:key="name" class="shopping-row">
       <text class="shopping-name">{{item.name}}</text>
       <text class="shopping-amount">{{item.amount_display}}</text>

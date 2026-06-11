@@ -35,5 +35,24 @@ Page({
 
   copySource() {
     wx.setClipboardData({ data: this.data.recipe.source_url });
+  },
+
+  deleteRecipe() {
+    wx.showModal({
+      title: "删除菜谱",
+      content: "会从菜谱库、今日菜单和未确认周计划中移除，历史菜单记录会保留。",
+      confirmText: "删除",
+      confirmColor: "#d94e38",
+      success: async (result) => {
+        if (!result.confirm) return;
+        try {
+          await api.deleteRecipe(this.data.id);
+          wx.showToast({ title: "已删除", icon: "success" });
+          wx.navigateBack();
+        } catch (error) {
+          wx.showToast({ title: error.message || "删除失败", icon: "none" });
+        }
+      }
+    });
   }
 });

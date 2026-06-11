@@ -114,9 +114,19 @@ def get_import_job(job_id: str) -> schemas.ImportJobOut:
         raise HTTPException(status_code=404, detail="Import job not found") from exc
 
 
+@app.post("/api/import-jobs/{job_id}/retry", response_model=schemas.ImportJobOut, status_code=201)
+def retry_import_job(job_id: str, background_tasks: BackgroundTasks) -> schemas.ImportJobOut:
+    try:
+        job = repository.retry_import_job(job_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Import job not found") from exc
+    background_tasks.add_task(get_pipeline().process, job.id)
+    return job
+
+
 @app.get("/api/recipes", response_model=list[schemas.RecipeListItem])
-def list_recipes() -> list[schemas.RecipeListItem]:
-    return repository.list_recipes()
+def list_recipes(query: str = "", platform: str = "") -> list[schemas.RecipeListItem]:
+    return repository.list_recipes(query=query, platform=platform)
 
 
 @app.get("/api/recipes/random", response_model=list[schemas.RecipeListItem])
@@ -146,6 +156,14 @@ def get_recipe(recipe_id: str) -> schemas.RecipeDetail:
 def update_recipe(recipe_id: str, payload: schemas.RecipeUpdate) -> schemas.RecipeDetail:
     try:
         return repository.update_recipe(recipe_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Recipe not found") from exc
+
+
+@app.delete("/api/recipes/{recipe_id}", status_code=204)
+def delete_recipe(recipe_id: str) -> None:
+    try:
+        repository.delete_recipe(recipe_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Recipe not found") from exc
 

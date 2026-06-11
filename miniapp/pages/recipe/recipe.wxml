@@ -15,6 +15,7 @@
           <button class="primary-button action-button" bindtap="addToMenu">加入今日菜单</button>
           <button class="link-button" bindtap="copySource">复制原链接</button>
         </view>
+        <button class="danger-button" bindtap="deleteRecipe">删除菜谱</button>
       </view>
     </view>
 

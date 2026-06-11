@@ -1,4 +1,4 @@
-import { BarChart3, CheckCircle2, Search, ShoppingBasket, Trash2, X } from "lucide-react";
+import { BarChart3, CheckCircle2, ClipboardCopy, Search, ShoppingBasket, Trash2, X } from "lucide-react";
 import type { CookingStatsItem, MenuOrder, ShoppingListItem, TodayMenuItem } from "../types";
 
 type Props = {
@@ -7,12 +7,17 @@ type Props = {
   cookingStats: CookingStatsItem[];
   shoppingList: ShoppingListItem[];
   orderQuery: string;
+  checkoutTitle: string;
+  checkoutNote: string;
   onOrderQueryChange: (query: string) => void;
+  onCheckoutTitleChange: (title: string) => void;
+  onCheckoutNoteChange: (note: string) => void;
   onUpdate: (id: string, payload: { servings?: number; note?: string }) => void;
   onRemove: (id: string) => void;
   onClear: () => void;
   onCheckout: () => void;
   onRestoreOrder: (id: string) => void;
+  onCopyShoppingList: () => void;
 };
 
 export function TodayMenu({
@@ -21,13 +26,22 @@ export function TodayMenu({
   cookingStats,
   shoppingList,
   orderQuery,
+  checkoutTitle,
+  checkoutNote,
   onOrderQueryChange,
+  onCheckoutTitleChange,
+  onCheckoutNoteChange,
   onUpdate,
   onRemove,
   onClear,
   onCheckout,
-  onRestoreOrder
+  onRestoreOrder,
+  onCopyShoppingList
 }: Props) {
+  function handleCopyShoppingList() {
+    onCopyShoppingList();
+  }
+
   return (
     <aside className="rounded-lg border border-black/10 bg-ink p-4 text-white shadow-soft">
       <div className="mb-4 flex items-center justify-between">
@@ -45,7 +59,7 @@ export function TodayMenu({
         <div className="space-y-2">
           {items.map((item, index) => (
             <div key={item.id} className="rounded-lg bg-white/8 px-3 py-2">
-              <div className="flex items-center gap-3">
+              <div className="grid grid-cols-[1.5rem_minmax(0,1fr)_5.25rem_1.5rem] items-center gap-2 sm:grid-cols-[1.5rem_minmax(0,1fr)_auto_1.5rem]">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-ginger text-xs font-bold text-ink">{index + 1}</span>
                 <span className="min-w-0 flex-1 truncate text-sm font-semibold">{item.recipe.title}</span>
                 <div className="flex shrink-0 items-center rounded-md bg-white/10">
@@ -82,6 +96,28 @@ export function TodayMenu({
               />
             </div>
           ))}
+          <div className="rounded-lg bg-white/8 p-3">
+            <label className="block text-xs font-bold text-white/70" htmlFor="checkout-title">
+              菜单名称
+            </label>
+            <input
+              id="checkout-title"
+              value={checkoutTitle}
+              onChange={(event) => onCheckoutTitleChange(event.target.value)}
+              placeholder="例如：周五晚餐"
+              className="mt-2 h-8 w-full rounded-md border border-white/10 bg-black/10 px-2 text-xs text-white outline-none placeholder:text-white/35 focus:border-ginger"
+            />
+            <label className="mt-3 block text-xs font-bold text-white/70" htmlFor="checkout-note">
+              下单备注
+            </label>
+            <input
+              id="checkout-note"
+              value={checkoutNote}
+              onChange={(event) => onCheckoutNoteChange(event.target.value)}
+              placeholder="例如：少辣，多做一份明天带饭"
+              className="mt-2 h-8 w-full rounded-md border border-white/10 bg-black/10 px-2 text-xs text-white outline-none placeholder:text-white/35 focus:border-ginger"
+            />
+          </div>
           <button
             onClick={onCheckout}
             className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-ginger text-sm font-black text-ink transition hover:bg-ginger/90"
@@ -91,7 +127,18 @@ export function TodayMenu({
           </button>
           {shoppingList.length ? (
             <div className="mt-4 rounded-lg bg-white/8 p-3">
-              <h3 className="mb-2 text-xs font-bold text-white/70">买菜清单</h3>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <h3 className="text-xs font-bold text-white/70">买菜清单</h3>
+                <button
+                  type="button"
+                  aria-label="复制买菜清单"
+                  onClick={handleCopyShoppingList}
+                  className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2 py-1 text-[11px] font-bold text-white transition hover:bg-white/20"
+                >
+                  <ClipboardCopy className="h-3.5 w-3.5" />
+                  复制
+                </button>
+              </div>
               <div className="space-y-1.5">
                 {shoppingList.slice(0, 8).map((item) => (
                   <div key={item.name} className="flex items-center justify-between gap-3 text-xs text-white/75">

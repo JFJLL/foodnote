@@ -72,6 +72,18 @@
   color: #1e2722;
 }
 
+.danger-button {
+  margin: 18rpx 0 0;
+  height: 70rpx;
+  border: 1px solid rgba(217, 78, 56, 0.3);
+  border-radius: 14rpx;
+  background: #ffffff;
+  color: #d94e38;
+  line-height: 70rpx;
+  font-size: 26rpx;
+  font-weight: 900;
+}
+
 .section-title {
   display: block;
   margin-bottom: 18rpx;

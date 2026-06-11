@@ -58,12 +58,19 @@ export const api = {
     media_paths?: string[];
     import_kind?: "unknown" | "image" | "video" | "manual";
   }) => request<ImportJob>("/api/import-jobs", { method: "POST", body: JSON.stringify(payload) }),
+  retryJob: (id: string) => request<ImportJob>(`/api/import-jobs/${id}/retry`, { method: "POST" }),
   uploadFiles: (files: File[]) => {
     const form = new FormData();
     files.forEach((file) => form.append("files", file));
     return request<{ paths: string[] }>("/api/uploads", { method: "POST", body: form });
   },
-  listRecipes: () => request<RecipeListItem[]>("/api/recipes"),
+  listRecipes: (query = "", platform = "") => {
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("query", query.trim());
+    if (platform) params.set("platform", platform);
+    const suffix = params.toString();
+    return request<RecipeListItem[]>(`/api/recipes${suffix ? `?${suffix}` : ""}`);
+  },
   randomRecipes: (count = 1) => request<RecipeListItem[]>(`/api/recipes/random?count=${count}`),
   getPreferences: () => request<HouseholdPreferences>("/api/preferences"),
   updatePreferences: (payload: Partial<HouseholdPreferences>) =>
@@ -71,6 +78,7 @@ export const api = {
   getRecipe: (id: string) => request<RecipeDetail>(`/api/recipes/${id}`),
   updateRecipe: (id: string, payload: Partial<RecipeDetail>) =>
     request<RecipeDetail>(`/api/recipes/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
+  deleteRecipe: (id: string) => request<void>(`/api/recipes/${id}`, { method: "DELETE" }),
   listMenu: () => request<TodayMenuItem[]>("/api/today-menu/items"),
   shoppingList: () => request<ShoppingListItem[]>("/api/today-menu/shopping-list"),
   listMenuOrders: (query = "") => request<MenuOrder[]>(`/api/menu-orders${query ? `?query=${encodeURIComponent(query)}` : ""}`),

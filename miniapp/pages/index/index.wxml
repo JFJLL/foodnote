@@ -14,6 +14,14 @@
   <view wx:elif="{{error}}" class="state error card">{{error}}</view>
   <view wx:elif="{{!recipes.length}}" class="state card">还没有菜谱，先在本地 Web 端导入小红书或抖音链接。</view>
 
+  <view class="search-card card">
+    <input value="{{recipeQuery}}" placeholder="搜菜名、标签、作者" confirm-type="search" bindinput="updateRecipeQuery" bindconfirm="searchRecipes" />
+    <picker mode="selector" range="{{platformOptions}}" value="{{platformIndex}}" bindchange="updateRecipePlatform">
+      <view class="platform-filter">{{platformOptions[platformIndex]}}</view>
+    </picker>
+    <button bindtap="searchRecipes">搜索</button>
+  </view>
+
   <view class="recipe-list">
     <view wx:for="{{recipes}}" wx:key="id" class="recipe card">
       <view class="recipe-cover" bindtap="openRecipe" data-id="{{item.id}}">

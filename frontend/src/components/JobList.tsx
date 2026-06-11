@@ -10,10 +10,12 @@ const statusIcon = {
 
 export function JobList({
   jobs,
-  onRecover
+  onRecover,
+  onRetry
 }: {
   jobs: ImportJob[];
   onRecover?: (job: ImportJob) => void;
+  onRetry?: (job: ImportJob) => void;
 }) {
   const visible = jobs.slice(0, 4);
   if (!visible.length) return null;
@@ -34,14 +36,27 @@ export function JobList({
               <span className="truncate">{job.progress_message}</span>
             </div>
             {job.error_message ? <p className="mt-1 line-clamp-2 text-xs text-tomato">{job.error_message}</p> : null}
-            {job.status === "failed" && onRecover ? (
-              <button
-                type="button"
-                onClick={() => onRecover(job)}
-                className="mt-2 rounded-md border border-tomato/30 bg-white px-2 py-1 text-xs font-bold text-tomato transition hover:bg-tomato hover:text-white"
-              >
-                用这个链接手动补录
-              </button>
+            {job.status === "failed" && (onRetry || onRecover) ? (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {onRetry ? (
+                  <button
+                    type="button"
+                    onClick={() => onRetry(job)}
+                    className="rounded-md border border-herb/30 bg-white px-2 py-1 text-xs font-bold text-herb transition hover:bg-herb hover:text-white"
+                  >
+                    重试
+                  </button>
+                ) : null}
+                {onRecover ? (
+                  <button
+                    type="button"
+                    onClick={() => onRecover(job)}
+                    className="rounded-md border border-tomato/30 bg-white px-2 py-1 text-xs font-bold text-tomato transition hover:bg-tomato hover:text-white"
+                  >
+                    手动补录
+                  </button>
+                ) : null}
+              </div>
             ) : null}
           </article>
         ))}

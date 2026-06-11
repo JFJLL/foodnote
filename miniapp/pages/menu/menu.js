@@ -8,6 +8,8 @@ Page({
     cookingStats: [],
     weeklyPlan: null,
     orderQuery: "",
+    checkoutTitle: "今日菜单",
+    checkoutNote: "",
     preferences: null,
     preferredTagsText: "",
     blockedTagsText: "",
@@ -93,8 +95,11 @@ Page({
 
   async confirmMenu() {
     try {
-      const order = await api.createMenuOrder("今日菜单", "");
+      const title = String(this.data.checkoutTitle || "").trim() || "今日菜单";
+      const note = String(this.data.checkoutNote || "").trim();
+      const order = await api.createMenuOrder(title, note);
       wx.showToast({ title: `已确认${order.item_count}道`, icon: "success" });
+      this.setData({ checkoutTitle: "今日菜单", checkoutNote: "" });
       this.load();
     } catch (error) {
       wx.showToast({ title: error.message || "确认失败", icon: "none" });
@@ -109,6 +114,19 @@ Page({
     } catch (error) {
       wx.showToast({ title: error.message || "复用失败", icon: "none" });
     }
+  },
+
+  copyShoppingList() {
+    if (!this.data.shoppingList.length) {
+      wx.showToast({ title: "买菜清单为空", icon: "none" });
+      return;
+    }
+    wx.setClipboardData({
+      data: formatShoppingList(this.data.shoppingList),
+      success() {
+        wx.showToast({ title: "清单已复制", icon: "success" });
+      }
+    });
   },
 
   async generateWeeklyPlan() {
@@ -146,6 +164,14 @@ Page({
     } catch (error) {
       wx.showToast({ title: error.message || "搜索失败", icon: "none" });
     }
+  },
+
+  updateCheckoutTitle(event) {
+    this.setData({ checkoutTitle: event.detail.value });
+  },
+
+  updateCheckoutNote(event) {
+    this.setData({ checkoutNote: event.detail.value });
   },
 
   updatePreferredTags(event) {
@@ -196,4 +222,16 @@ function splitList(value) {
 function clamp(value, min, max) {
   if (!Number.isFinite(value)) return min;
   return Math.min(max, Math.max(min, Math.round(value)));
+}
+
+function formatShoppingList(items) {
+  return ["Foodnote 买菜清单"]
+    .concat(
+      items.map((item) => {
+        const amount = item.amount_display || item.amount || `x${item.servings_total}`;
+        const note = item.note ? `（${item.note}）` : "";
+        return `- ${item.name}：${amount}${note}`;
+      })
+    )
+    .join("\n");
 }

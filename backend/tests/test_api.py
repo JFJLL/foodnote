@@ -151,6 +151,47 @@ def test_import_job_success_creates_recipe(app_client):
     assert len(detail["steps"]) == 2
 
 
+def test_recipe_list_supports_query_and_platform_filters(app_client):
+    client, _ = app_client
+    from app import repository
+
+    repository.create_recipe_from_draft(
+        source_url="demo://xhs/tomato",
+        source_platform="xiaohongshu",
+        source_title="小红书番茄鸡蛋面",
+        source_author="Foodnote Demo",
+        raw_metadata_path=None,
+        draft={
+            "title": "番茄鸡蛋面",
+            "description": "十分钟家常面。",
+            "tags": ["家常菜", "快手"],
+            "ingredients": [],
+            "steps": [],
+            "confidence": 0.9,
+        },
+    )
+    repository.create_recipe_from_draft(
+        source_url="demo://douyin/shrimp",
+        source_platform="douyin",
+        source_title="抖音空气炸锅虾",
+        source_author="Foodnote Demo",
+        raw_metadata_path=None,
+        draft={
+            "title": "空气炸锅烤虾",
+            "description": "适合周末的小菜。",
+            "tags": ["空气炸锅", "海鲜"],
+            "ingredients": [],
+            "steps": [],
+            "confidence": 0.82,
+        },
+    )
+
+    assert [item["title"] for item in client.get("/api/recipes?query=番茄").json()] == ["番茄鸡蛋面"]
+    assert [item["title"] for item in client.get("/api/recipes?query=海鲜").json()] == ["空气炸锅烤虾"]
+    assert [item["source_platform"] for item in client.get("/api/recipes?platform=douyin").json()] == ["douyin"]
+    assert client.get("/api/recipes?query=番茄&platform=douyin").json() == []
+
+
 def test_import_job_records_mimo_failure(app_client):
     client, main = app_client
     if hasattr(main.app.state, "pipeline_factory"):
@@ -167,6 +208,30 @@ def test_import_job_records_mimo_failure(app_client):
     job = client.get(f"/api/import-jobs/{response.json()['id']}").json()
     assert job["status"] == "failed"
     assert "MIMO_API_KEY" in job["error_message"]
+
+    class RetryMimoClient(FakeMimoClient):
+        pass
+
+    def pipeline_factory():
+        from app.services.import_pipeline import ImportPipeline
+
+        return ImportPipeline(
+            main.settings,
+            media_processor=FakeMediaProcessor(),
+            mimo_client=RetryMimoClient(),
+        )
+
+    main.app.state.pipeline_factory = pipeline_factory
+    retry_response = client.post(f"/api/import-jobs/{job['id']}/retry")
+    assert retry_response.status_code == 201
+    retry_job = client.get(f"/api/import-jobs/{retry_response.json()['id']}").json()
+    assert retry_job["id"] != job["id"]
+    assert retry_job["source_url"] == job["source_url"]
+    assert retry_job["source_platform"] == job["source_platform"]
+    assert retry_job["import_kind"] == job["import_kind"]
+    assert retry_job["status"] == "completed"
+    assert retry_job["recipe_id"]
+    assert client.post("/api/import-jobs/missing/retry").status_code == 404
 
 
 def test_recipe_update_and_today_menu(app_client):
@@ -255,6 +320,15 @@ def test_recipe_update_and_today_menu(app_client):
     merged_menu = client.post(f"/api/menu-orders/{order['id']}/restore").json()
     assert len(merged_menu) == 1
     assert merged_menu[0]["servings"] == 6
+
+    delete_response = client.delete(f"/api/recipes/{recipe_id}")
+    assert delete_response.status_code == 204
+    assert client.get(f"/api/recipes/{recipe_id}").status_code == 404
+    assert client.get("/api/today-menu/items").json() == []
+    assert client.get(f"/api/menu-orders/{order['id']}").json()["items"][0]["recipe_title"] == "改良番茄鸡蛋面"
+    assert client.post(f"/api/menu-orders/{order['id']}/restore").json() == []
+    assert client.get(f"/api/import-jobs/{job['id']}").json()["recipe_id"] is None
+    assert client.delete(f"/api/recipes/{recipe_id}").status_code == 404
 
 
 def test_video_import_uses_media_processor(app_client):

@@ -74,6 +74,19 @@ def get_import_job_record(job_id: str) -> dict[str, Any]:
     return row
 
 
+def retry_import_job(job_id: str) -> schemas.ImportJobOut:
+    original = get_import_job_record(job_id)
+    return create_import_job(
+        schemas.ImportJobCreate(
+            source_url=original["source_url"],
+            source_platform=original["source_platform"],
+            manual_text=original.get("manual_text"),
+            media_paths=original.get("media_paths") or [],
+            import_kind=original.get("import_kind") or "unknown",
+        )
+    )
+
+
 def update_job(
     job_id: str,
     *,
@@ -104,9 +117,28 @@ def update_job(
         conn.execute(f"UPDATE import_jobs SET {', '.join(fields)} WHERE id = ?", values)
 
 
-def list_recipes() -> list[schemas.RecipeListItem]:
+def list_recipes(query: str = "", platform: str = "") -> list[schemas.RecipeListItem]:
+    filters: list[str] = []
+    values: list[Any] = []
+    normalized_query = query.strip()
+    normalized_platform = platform.strip()
+    if normalized_query:
+        like = f"%{normalized_query}%"
+        filters.append(
+            """
+            (
+              title LIKE ? OR description LIKE ? OR tags_json LIKE ? OR
+              source_title LIKE ? OR source_author LIKE ? OR source_platform LIKE ?
+            )
+            """
+        )
+        values.extend([like, like, like, like, like, like])
+    if normalized_platform in {"xiaohongshu", "douyin"}:
+        filters.append("source_platform = ?")
+        values.append(normalized_platform)
+    where_clause = f"WHERE {' AND '.join(filters)}" if filters else ""
     with connect() as conn:
-        rows = conn.execute("SELECT * FROM recipes ORDER BY updated_at DESC").fetchall()
+        rows = conn.execute(f"SELECT * FROM recipes {where_clause} ORDER BY updated_at DESC", values).fetchall()
     return [_recipe_list_from_row(row) for row in rows]
 
 
@@ -131,6 +163,14 @@ def get_recipe(recipe_id: str) -> schemas.RecipeDetail:
         ingredients=[_ingredient_from_row(row) for row in ingredients],
         steps=[_step_from_row(row) for row in steps],
     )
+
+
+def delete_recipe(recipe_id: str) -> None:
+    with connect() as conn:
+        result = conn.execute("DELETE FROM recipes WHERE id = ?", (recipe_id,))
+        if result.rowcount == 0:
+            raise KeyError(recipe_id)
+        conn.execute("UPDATE import_jobs SET recipe_id = NULL WHERE recipe_id = ?", (recipe_id,))
 
 
 def create_recipe_from_draft(
@@ -345,8 +385,9 @@ def restore_menu_order(order_id: str) -> list[schemas.TodayMenuItemOut]:
     with connect() as conn:
         current_rows = conn.execute("SELECT * FROM today_menu_items").fetchall()
         current_by_recipe_id = {row["recipe_id"]: row for row in current_rows}
+        recipe_ids = {row["id"] for row in conn.execute("SELECT id FROM recipes").fetchall()}
         for item in order.items:
-            if not item.recipe_id:
+            if not item.recipe_id or item.recipe_id not in recipe_ids:
                 continue
             existing = current_by_recipe_id.get(item.recipe_id)
             if existing:

@@ -55,6 +55,46 @@
   color: #d94e38;
 }
 
+.search-card {
+  display: grid;
+  grid-template-columns: 1fr 150rpx 104rpx;
+  align-items: center;
+  gap: 12rpx;
+  padding: 18rpx;
+  margin-bottom: 22rpx;
+}
+
+.search-card input,
+.platform-filter {
+  height: 62rpx;
+  border-radius: 12rpx;
+  background: #f5f7f2;
+  padding: 0 18rpx;
+  color: #1e2722;
+  font-size: 25rpx;
+  line-height: 62rpx;
+}
+
+.platform-filter {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+  font-weight: 800;
+}
+
+.search-card button {
+  margin: 0;
+  padding: 0;
+  height: 62rpx;
+  border-radius: 12rpx;
+  background: #1f6f4a;
+  color: #ffffff;
+  line-height: 62rpx;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+
 .recipe-list {
   display: flex;
   flex-direction: column;

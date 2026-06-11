@@ -123,8 +123,30 @@
   font-size: 25rpx;
 }
 
+.checkout-card {
+  margin-top: 22rpx;
+  padding: 24rpx;
+}
+
+.checkout-title {
+  display: block;
+  margin-bottom: 12rpx;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.checkout-input {
+  height: 62rpx;
+  margin-top: 12rpx;
+  border-radius: 12rpx;
+  background: #f5f7f2;
+  padding: 0 18rpx;
+  color: #1e2722;
+  font-size: 25rpx;
+}
+
 .confirm {
-  margin: 22rpx 0 0;
+  margin: 18rpx 0 0;
   height: 76rpx;
   border-radius: 16rpx;
   background: #f0b64d;
@@ -143,6 +165,30 @@
   display: block;
   margin-bottom: 12rpx;
   font-size: 32rpx;
+  font-weight: 900;
+}
+
+.shopping-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.shopping-head .shopping-title {
+  margin-bottom: 0;
+}
+
+.shopping-head button {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 22rpx;
+  height: 56rpx;
+  border-radius: 12rpx;
+  background: #1f6f4a;
+  color: #ffffff;
+  line-height: 56rpx;
+  font-size: 24rpx;
   font-weight: 900;
 }
 

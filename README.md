@@ -10,6 +10,7 @@ V1 focuses on a local Web MVP:
 - Mimo-powered recipe extraction
 - Editable recipe library
 - Today's menu list with servings, notes, random picks, and shopping list
+- One-click shopping-list copy for WeChat, notes, or grocery runs
 - Weekly menu planning from the recipe library and taste preferences
 - Manual fallback when platform scraping fails
 - WeChat Mini Program shell that reuses the backend recipe/menu APIs
@@ -173,10 +174,10 @@ Platform scraping may require cookies, login, rate limits, or manual risk-contro
 ## API Surface
 
 - `POST /api/import-jobs`: submit a link, optional manual text, and optional uploaded media paths.
-- `GET /api/import-jobs` / `GET /api/import-jobs/{id}`: inspect import status and recovery-friendly failure messages.
+- `GET /api/import-jobs` / `GET /api/import-jobs/{id}` / `POST /api/import-jobs/{id}/retry`: inspect import status, retry failed imports, and use recovery-friendly failure messages.
 - `GET /api/system/status`: inspect local Mimo, ASR, ffmpeg, upload, and collector readiness.
-- `GET /api/recipes` / `GET /api/recipes/random` / `GET /api/recipes/{id}`: browse and pick dishes.
-- `PATCH /api/recipes/{id}`: edit dish name, description, cover, tags, ingredients, and steps.
+- `GET /api/recipes?query=&platform=` / `GET /api/recipes/random` / `GET /api/recipes/{id}`: browse, search, filter, and pick dishes.
+- `PATCH /api/recipes/{id}` / `DELETE /api/recipes/{id}`: edit or delete a recipe. Deleting removes active menu/weekly-plan references while preserving confirmed menu history snapshots.
 - `GET /api/preferences` / `PATCH /api/preferences`: manage household taste preferences, default servings, and recent-dish avoidance for random picks.
 - `POST /api/today-menu/items`: add a recipe with servings and note.
 - `PATCH /api/today-menu/items/{id}`: update servings or note.
@@ -195,7 +196,7 @@ Platform scraping may require cookies, login, rate limits, or manual risk-contro
 
 The Web app remains the import and editing tool. If automatic platform extraction fails, the failed job exposes a manual recovery action that reuses the original link and switches the import form into manual mode.
 
-The Mini Program is the lightweight household menu surface: browse dishes, open recipe details, pick a preference-aware random dish, add dishes to today's menu with the household default serving count, adjust servings, leave taste/portion notes, confirm a menu, generate a weekly menu, add planned meals into today's menu, edit taste preferences, search menu history, and read shopping/history/frequency lists.
+The Mini Program is the lightweight household menu surface: browse and search dishes, filter by source platform, open recipe details, pick a preference-aware random dish, add dishes to today's menu with the household default serving count, adjust servings, leave taste/portion notes, confirm a named menu, generate a weekly menu, add planned meals into today's menu, edit taste preferences, search menu history, and read shopping/history/frequency lists.
 
 ## Verification
 
