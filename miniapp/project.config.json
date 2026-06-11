@@ -1,0 +1,14 @@
+{
+  "description": "Foodnote WeChat Mini Program",
+  "appid": "touristappid",
+  "projectname": "foodnote-miniapp",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true
+  },
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./"
+}

@@ -1,0 +1,412 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx;
+  margin-bottom: 22rpx;
+}
+
+.title {
+  display: block;
+  font-size: 42rpx;
+  font-weight: 900;
+}
+
+.subtitle {
+  display: block;
+  margin-top: 6rpx;
+  color: #6d756f;
+  font-size: 26rpx;
+}
+
+.clear {
+  margin: 0;
+  padding: 0 24rpx;
+  height: 64rpx;
+  border-radius: 14rpx;
+  background: #1e2722;
+  color: #ffffff;
+  line-height: 64rpx;
+  font-size: 26rpx;
+}
+
+.state {
+  padding: 32rpx;
+  color: #6d756f;
+}
+
+.error {
+  color: #d94e38;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+}
+
+.menu-item {
+  padding: 22rpx;
+}
+
+.menu-main {
+  display: grid;
+  grid-template-columns: 58rpx 1fr 150rpx 96rpx;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.index {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 14rpx;
+  background: #f0b64d;
+  font-weight: 900;
+}
+
+.name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.remove {
+  height: 58rpx;
+  padding: 0;
+  border-radius: 12rpx;
+  background: #f1e7df;
+  color: #d94e38;
+  line-height: 58rpx;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
+.servings {
+  display: grid;
+  grid-template-columns: 42rpx 56rpx 42rpx;
+  align-items: center;
+  border-radius: 12rpx;
+  background: #f5f7f2;
+  overflow: hidden;
+}
+
+.servings button {
+  margin: 0;
+  padding: 0;
+  height: 52rpx;
+  background: transparent;
+  color: #1e2722;
+  line-height: 52rpx;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.servings text {
+  text-align: center;
+  color: #6d756f;
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
+.note {
+  margin-top: 16rpx;
+  height: 62rpx;
+  border-radius: 12rpx;
+  background: #f5f7f2;
+  padding: 0 18rpx;
+  color: #1e2722;
+  font-size: 25rpx;
+}
+
+.confirm {
+  margin: 22rpx 0 0;
+  height: 76rpx;
+  border-radius: 16rpx;
+  background: #f0b64d;
+  color: #1e2722;
+  line-height: 76rpx;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.shopping {
+  margin-top: 24rpx;
+  padding: 26rpx;
+}
+
+.shopping-title {
+  display: block;
+  margin-bottom: 12rpx;
+  font-size: 32rpx;
+  font-weight: 900;
+}
+
+.shopping-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding: 16rpx 0;
+  border-top: 1px solid rgba(30, 39, 34, 0.08);
+  font-size: 28rpx;
+}
+
+.shopping-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.shopping-amount {
+  flex-shrink: 0;
+  color: #6d756f;
+}
+
+.weekly {
+  margin-top: 24rpx;
+  padding: 26rpx;
+}
+
+.weekly-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.weekly-head button {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 24rpx;
+  height: 62rpx;
+  border-radius: 14rpx;
+  background: #1f6f4a;
+  color: #ffffff;
+  line-height: 62rpx;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+
+.weekly-subtitle {
+  display: block;
+  margin-top: -4rpx;
+  color: #6d756f;
+  font-size: 24rpx;
+}
+
+.weekly-list {
+  margin-top: 8rpx;
+}
+
+.weekly-row {
+  display: grid;
+  grid-template-columns: 1fr 96rpx;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 0;
+  border-top: 1px solid rgba(30, 39, 34, 0.08);
+}
+
+.weekly-label,
+.weekly-recipe {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.weekly-label {
+  color: #6d756f;
+  font-size: 23rpx;
+  font-weight: 800;
+}
+
+.weekly-recipe {
+  margin-top: 4rpx;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.weekly-row button {
+  margin: 0;
+  padding: 0;
+  height: 54rpx;
+  border-radius: 12rpx;
+  background: #d94e38;
+  color: #ffffff;
+  line-height: 54rpx;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+
+.orders {
+  margin-top: 24rpx;
+  padding: 26rpx;
+}
+
+.history-search {
+  display: grid;
+  grid-template-columns: 1fr 110rpx;
+  gap: 12rpx;
+  margin: 12rpx 0 4rpx;
+}
+
+.history-search input {
+  box-sizing: border-box;
+  height: 62rpx;
+  border-radius: 12rpx;
+  background: #f5f7f2;
+  padding: 0 18rpx;
+  color: #1e2722;
+  font-size: 25rpx;
+}
+
+.history-search button {
+  margin: 0;
+  padding: 0;
+  height: 62rpx;
+  border-radius: 12rpx;
+  background: #1f6f4a;
+  color: #ffffff;
+  line-height: 62rpx;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+  padding: 18rpx 0;
+  border-top: 1px solid rgba(30, 39, 34, 0.08);
+}
+
+.order-title,
+.order-summary {
+  display: block;
+}
+
+.order-title {
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.order-summary {
+  margin-top: 6rpx;
+  max-width: 500rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #6d756f;
+  font-size: 24rpx;
+}
+
+.order-count {
+  color: #8b928d;
+  font-size: 24rpx;
+}
+
+.order-actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10rpx;
+}
+
+.reuse {
+  margin: 0;
+  padding: 0 18rpx;
+  height: 52rpx;
+  border-radius: 12rpx;
+  background: #1f6f4a;
+  color: #ffffff;
+  line-height: 52rpx;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
+.empty-line {
+  padding: 18rpx 0 4rpx;
+  color: #8b928d;
+  font-size: 25rpx;
+}
+
+.stats {
+  margin-top: 24rpx;
+  padding: 26rpx;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+  padding: 15rpx 0;
+  border-top: 1px solid rgba(30, 39, 34, 0.08);
+}
+
+.stat-title {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 27rpx;
+  font-weight: 800;
+}
+
+.stat-count {
+  flex-shrink: 0;
+  color: #6d756f;
+  font-size: 24rpx;
+}
+
+.preferences {
+  margin-top: 24rpx;
+  padding: 26rpx;
+}
+
+.pref-field {
+  margin-top: 18rpx;
+}
+
+.pref-field text {
+  display: block;
+  margin-bottom: 8rpx;
+  color: #6d756f;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
+.pref-field input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 66rpx;
+  border-radius: 14rpx;
+  background: #f5f7f2;
+  padding: 0 18rpx;
+  color: #1e2722;
+  font-size: 26rpx;
+}
+
+.pref-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+}
+
+.save-pref {
+  margin: 22rpx 0 0;
+  height: 68rpx;
+  border-radius: 14rpx;
+  background: #1f6f4a;
+  color: #ffffff;
+  line-height: 68rpx;
+  font-size: 28rpx;
+  font-weight: 900;
+}

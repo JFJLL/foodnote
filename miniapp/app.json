@@ -1,0 +1,29 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/recipe/recipe",
+    "pages/menu/menu"
+  ],
+  "window": {
+    "navigationBarTitleText": "Foodnote",
+    "navigationBarBackgroundColor": "#2F6B4F",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F7F2"
+  },
+  "tabBar": {
+    "color": "#6D756F",
+    "selectedColor": "#2F6B4F",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "菜谱"
+      },
+      {
+        "pagePath": "pages/menu/menu",
+        "text": "今日菜单"
+      }
+    ]
+  }
+}

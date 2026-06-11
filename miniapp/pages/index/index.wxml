@@ -1,0 +1,31 @@
+<view class="safe-page">
+  <view class="topbar card">
+    <view>
+      <text class="title">Foodnote</text>
+      <text class="subtitle">今天想吃什么</text>
+    </view>
+    <view class="top-actions">
+      <button class="random" bindtap="randomRecipe">随机</button>
+      <view class="menu-pill">{{menuCount}} 道</view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="state card">正在加载菜谱...</view>
+  <view wx:elif="{{error}}" class="state error card">{{error}}</view>
+  <view wx:elif="{{!recipes.length}}" class="state card">还没有菜谱，先在本地 Web 端导入小红书或抖音链接。</view>
+
+  <view class="recipe-list">
+    <view wx:for="{{recipes}}" wx:key="id" class="recipe card">
+      <view class="recipe-cover" bindtap="openRecipe" data-id="{{item.id}}">
+        <image wx:if="{{item.cover_url}}" src="{{item.cover_url}}" mode="aspectFill" />
+        <text wx:else>Foodnote</text>
+      </view>
+      <view class="recipe-body" bindtap="openRecipe" data-id="{{item.id}}">
+        <text class="recipe-title">{{item.title}}</text>
+        <text class="recipe-desc">{{item.display_description}}</text>
+        <text class="recipe-meta">{{item.source_platform}} · {{item.tag_text}}</text>
+      </view>
+      <button class="add-button" data-id="{{item.id}}" bindtap="addRecipe">+</button>
+    </view>
+  </view>
+</view>

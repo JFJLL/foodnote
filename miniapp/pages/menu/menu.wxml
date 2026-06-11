@@ -1,0 +1,121 @@
+<view class="safe-page">
+  <view class="header card">
+    <view>
+      <text class="title">今日菜单</text>
+      <text class="subtitle">{{items.length}} 道菜</text>
+    </view>
+    <button wx:if="{{items.length}}" class="clear" bindtap="clearMenu">清空</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="state card">正在加载菜单...</view>
+  <view wx:elif="{{error}}" class="state error card">{{error}}</view>
+  <view wx:elif="{{!items.length}}" class="state card">还没有选菜，去菜谱页点加号。</view>
+
+  <view class="menu-list">
+    <view wx:for="{{items}}" wx:key="id" class="menu-item card">
+      <view class="menu-main">
+        <text class="index">{{item.display_index}}</text>
+        <text class="name">{{item.recipe.title}}</text>
+        <view class="servings">
+          <button data-id="{{item.id}}" bindtap="decreaseServings">-</button>
+          <text>x{{item.servings}}</text>
+          <button data-id="{{item.id}}" bindtap="increaseServings">+</button>
+        </view>
+        <button class="remove" data-id="{{item.id}}" bindtap="removeItem">移除</button>
+      </view>
+      <input class="note" data-id="{{item.id}}" value="{{item.note}}" placeholder="备注口味、份量或时间" bindblur="updateNote" />
+    </view>
+  </view>
+
+  <button wx:if="{{items.length}}" class="confirm" bindtap="confirmMenu">确认菜单</button>
+
+  <view wx:if="{{shoppingList.length}}" class="shopping card">
+    <text class="shopping-title">买菜清单</text>
+    <view wx:for="{{shoppingList}}" wx:key="name" class="shopping-row">
+      <text class="shopping-name">{{item.name}}</text>
+      <text class="shopping-amount">{{item.amount_display}}</text>
+    </view>
+  </view>
+
+  <view class="weekly card">
+    <view class="weekly-head">
+      <view>
+        <text class="shopping-title">本周菜单</text>
+        <text class="weekly-subtitle">{{weeklyPlan ? weeklyPlan.title : '按偏好生成一周午晚餐'}}</text>
+      </view>
+      <button bindtap="generateWeeklyPlan">生成</button>
+    </view>
+    <view wx:if="{{weeklyPlan && weeklyPlan.items.length}}" class="weekly-list">
+      <view wx:for="{{weeklyPlan.items}}" wx:key="id" class="weekly-row">
+        <view>
+          <text class="weekly-label">{{item.display_label}}</text>
+          <text class="weekly-recipe">{{item.recipe.title}}</text>
+        </view>
+        <button data-id="{{item.id}}" bindtap="addWeeklyPlanItem">加入</button>
+      </view>
+    </view>
+    <view wx:else class="empty-line">菜谱积累后，可以一键生成本周菜单。</view>
+  </view>
+
+  <view wx:if="{{orders.length}}" class="orders card">
+    <text class="shopping-title">最近菜单</text>
+    <view class="history-search">
+      <input value="{{orderQuery}}" placeholder="按菜名搜索历史菜单" bindinput="updateOrderQuery" confirm-type="search" bindconfirm="searchOrders" />
+      <button bindtap="searchOrders">搜索</button>
+    </view>
+    <view wx:for="{{orders}}" wx:key="id" class="order-row">
+      <view>
+        <text class="order-title">{{item.title}}</text>
+        <text class="order-summary">{{item.summary}}</text>
+      </view>
+      <view class="order-actions">
+        <text class="order-count">{{item.item_count}} 道</text>
+        <button class="reuse" data-id="{{item.id}}" bindtap="restoreOrder">复用</button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:elif="{{orderQuery}}" class="orders card">
+    <text class="shopping-title">最近菜单</text>
+    <view class="history-search">
+      <input value="{{orderQuery}}" placeholder="按菜名搜索历史菜单" bindinput="updateOrderQuery" confirm-type="search" bindconfirm="searchOrders" />
+      <button bindtap="searchOrders">搜索</button>
+    </view>
+    <view class="empty-line">没有匹配的历史菜单</view>
+  </view>
+
+  <view wx:if="{{cookingStats.length}}" class="stats card">
+    <text class="shopping-title">常做榜</text>
+    <view wx:for="{{cookingStats}}" wx:key="recipe_title" class="stat-row">
+      <text class="stat-title">{{item.recipe_title}}</text>
+      <text class="stat-count">{{item.cooked_count}} 次 / {{item.servings_total}} 份</text>
+    </view>
+  </view>
+
+  <view wx:if="{{preferences}}" class="preferences card">
+    <text class="shopping-title">口味偏好</text>
+    <view class="pref-field">
+      <text>常吃标签</text>
+      <input value="{{preferredTagsText}}" placeholder="家常菜，快手" bindinput="updatePreferredTags" />
+    </view>
+    <view class="pref-field">
+      <text>不想吃标签</text>
+      <input value="{{blockedTagsText}}" placeholder="油炸，甜口" bindinput="updateBlockedTags" />
+    </view>
+    <view class="pref-field">
+      <text>少用食材</text>
+      <input value="{{dislikedIngredientsText}}" placeholder="香菜，肥肉" bindinput="updateDislikedIngredients" />
+    </view>
+    <view class="pref-grid">
+      <view class="pref-field">
+        <text>默认份数</text>
+        <input type="number" value="{{preferences.default_servings}}" bindinput="updateDefaultServings" />
+      </view>
+      <view class="pref-field">
+        <text>避开天数</text>
+        <input type="number" value="{{preferences.avoid_recent_days}}" bindinput="updateAvoidRecentDays" />
+      </view>
+    </view>
+    <button class="save-pref" bindtap="savePreferences">保存偏好</button>
+  </view>
+</view>

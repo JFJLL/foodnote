@@ -1,0 +1,40 @@
+<view class="safe-page">
+  <view wx:if="{{loading}}" class="state card">正在加载...</view>
+  <view wx:elif="{{error}}" class="state error card">{{error}}</view>
+
+  <view wx:elif="{{recipe}}" class="detail">
+    <view class="hero card">
+      <view class="cover">
+        <image wx:if="{{recipe.cover_url}}" src="{{recipe.cover_url}}" mode="aspectFill" />
+        <text wx:else>Foodnote</text>
+      </view>
+      <view class="hero-body">
+        <text class="title">{{recipe.title}}</text>
+        <text class="desc">{{recipe.description}}</text>
+        <view class="actions">
+          <button class="primary-button action-button" bindtap="addToMenu">加入今日菜单</button>
+          <button class="link-button" bindtap="copySource">复制原链接</button>
+        </view>
+      </view>
+    </view>
+
+    <view class="section card">
+      <text class="section-title">食材</text>
+      <view wx:for="{{recipe.ingredients}}" wx:key="id" class="ingredient">
+        <text>{{item.name}}</text>
+        <text>{{item.amount}}</text>
+      </view>
+    </view>
+
+    <view class="section card">
+      <text class="section-title">步骤</text>
+      <view wx:for="{{recipe.steps}}" wx:key="id" class="step">
+        <text class="step-index">{{item.display_index}}</text>
+        <view>
+          <text class="step-title">{{item.display_title}}</text>
+          <text class="step-body">{{item.body}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
